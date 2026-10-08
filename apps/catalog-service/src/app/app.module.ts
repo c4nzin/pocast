@@ -8,6 +8,7 @@ import {
 } from '@pocast/contracts';
 import { CatalogQueryService } from './catalog/catalog-query.service';
 import { CatalogController } from './catalog/catalog.controller';
+import { PodcastSearchService } from './catalog/podcast-search.service';
 import { CategoryRegistry } from './categories/category-registry.service';
 import { FeedFetcher, HttpFeedFetcher } from './ingest/feed-fetcher';
 import { FeedIngestService } from './ingest/feed-ingest.service';
@@ -52,6 +53,7 @@ import {
   providers: [
     CategoryRegistry,
     CatalogQueryService,
+    PodcastSearchService,
     FeedIngestService,
     HostedFeedSync,
     FeedScheduler,

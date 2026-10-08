@@ -63,6 +63,7 @@ model Podcast {
   lastError         String?
 
   episodeCount    Int       @default(0)
+  searchVector    Unsupported("tsvector")? @map("search_vector")
   latestEpisodeAt DateTime?
 
   createdAt DateTime @default(now())
@@ -72,6 +73,8 @@ model Podcast {
   categories PodcastCategory[]
 
   @@index([status, latestEpisodeAt(sort: Desc), id])
+  @@index([searchVector], type: Gin)
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "podcasts_title_trgm_idx")
   @@index([language, status, latestEpisodeAt(sort: Desc)])
   @@index([nextFetchAt])
   @@map("podcasts")

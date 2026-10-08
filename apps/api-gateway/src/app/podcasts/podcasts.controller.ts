@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Throttle } from '@nestjs/throttler';
 import {
   CATALOG_PATTERNS,
   CATALOG_SERVICE,
@@ -21,6 +22,8 @@ import {
   PageQueryDto,
   PodcastDetail,
   PodcastSummary,
+  SearchPodcastsQueryDto,
+  type SearchResult,
 } from '@pocast/contracts';
 import { Authenticated } from '../auth/auth.guard';
 import { sendRpc } from '../common/send-rpc';
@@ -39,6 +42,13 @@ export class PodcastsController {
   @Header('Cache-Control', CATALOG_CACHE_CONTROL)
   list(@Query() query: ListPodcastsQueryDto): Promise<Page<PodcastSummary>> {
     return sendRpc(this.catalogClient, CATALOG_PATTERNS.LIST_PODCASTS, query);
+  }
+
+  @Get('search')
+  @Header('Cache-Control', CATALOG_CACHE_CONTROL)
+  @Throttle({ default: { limit: 120, ttl: 60_000 } })
+  search(@Query() query: SearchPodcastsQueryDto): Promise<SearchResult> {
+    return sendRpc(this.catalogClient, CATALOG_PATTERNS.SEARCH_PODCASTS, query);
   }
 
   @Get(':id')

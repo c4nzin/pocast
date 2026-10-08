@@ -10,11 +10,14 @@ import {
   PodcastDetail,
   PodcastSummary,
   RpcErrorPayload,
+  SearchPodcastsQueryDto,
+  type SearchResult,
 } from '@pocast/contracts';
 import { FeedFetchError } from '../ingest/feed-fetcher';
 import { FeedIngestService } from '../ingest/feed-ingest.service';
 import { FeedParseError } from '../ingest/feed-parser';
 import { CatalogQueryService } from './catalog-query.service';
+import { PodcastSearchService } from './podcast-search.service';
 
 function rpcError(statusCode: number, message: string): RpcException {
   const payload: RpcErrorPayload = { statusCode, message };
@@ -28,7 +31,15 @@ export class CatalogController {
   constructor(
     private readonly queries: CatalogQueryService,
     private readonly ingest: FeedIngestService,
+    private readonly searcher: PodcastSearchService,
   ) {}
+
+  @MessagePattern(CATALOG_PATTERNS.SEARCH_PODCASTS)
+  searchPodcasts(
+    @Payload() query: SearchPodcastsQueryDto,
+  ): Promise<SearchResult> {
+    return this.searcher.search(query);
+  }
 
   @MessagePattern(CATALOG_PATTERNS.LIST_PODCASTS)
   listPodcasts(
