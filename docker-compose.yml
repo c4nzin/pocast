@@ -1,0 +1,59 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: pocast-rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: pocast-postgres
+    environment:
+      POSTGRES_USER: pocast
+      POSTGRES_PASSWORD: pocast
+      POSTGRES_DB: pocast_catalog
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./tools/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U pocast -d pocast_catalog']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    container_name: pocast-redis
+    command:
+      [
+        'redis-server',
+        '--save',
+        '',
+        '--appendonly',
+        'no',
+        '--maxmemory',
+        '256mb',
+        '--maxmemory-policy',
+        'volatile-ttl',
+      ]
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rabbitmq-data:
+  postgres-data:

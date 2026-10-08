@@ -1,0 +1,105 @@
+{
+  "name": "@pocast/api-gateway",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "prune-lockfile": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "executor": "@nx/js:prune-lockfile",
+        "inputs": [
+          "default",
+          "^default",
+          "{workspaceRoot}/pnpm-workspace.yaml",
+          "{workspaceRoot}/package.json",
+          {
+            "runtime": "node -e \"try{console.log('pnpm major '+require('child_process').execSync('pnpm --version',{stdio:['ignore','pipe','ignore']}).toString().trim().split('.')[0])}catch{console.log('pnpm major unavailable')}\""
+          }
+        ],
+        "outputs": [
+          "{workspaceRoot}/apps/api-gateway/dist/package.json",
+          "{workspaceRoot}/apps/api-gateway/dist/pnpm-lock.yaml",
+          "{workspaceRoot}/apps/api-gateway/dist/pnpm-workspace.yaml",
+          "{workspaceRoot}/apps/api-gateway/dist/patches",
+          "{workspaceRoot}/apps/api-gateway/dist/local_path_modules"
+        ],
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "copy-workspace-modules": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{workspaceRoot}/apps/api-gateway/dist/workspace_modules"
+        ],
+        "executor": "@nx/js:copy-workspace-modules",
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "prune": {
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ],
+        "executor": "nx:noop"
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@pocast/api-gateway:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "@pocast/api-gateway:build:development"
+          },
+          "production": {
+            "buildTarget": "@pocast/api-gateway:build:production"
+          }
+        }
+      },
+      "test": {
+        "options": {
+          "passWithNoTests": true
+        }
+      }
+    },
+    "tags": [
+      "type:app",
+      "scope:gateway"
+    ]
+  },
+  "dependencies": {
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/microservices": "^11.2.7",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/throttler": "^6.7.1",
+    "@pocast/contracts": "workspace:*",
+    "amqp-connection-manager": "^5.0.0",
+    "amqplib": "^2.2.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "ioredis": "^5.11.1",
+    "jose": "^6.2.12",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0"
+  }
+}

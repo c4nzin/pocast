@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/catalog-service"
+    },
+    {
+      "path": "./libs/contracts"
+    },
+    {
+      "path": "./apps/auth-service"
+    },
+    {
+      "path": "./libs/microservice-kit"
+    }
+  ],
+  "compilerOptions": {}
+}

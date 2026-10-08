@@ -1,0 +1,56 @@
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  LISTENER
+  CREATOR
+  EDITOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+model User {
+  id              String     @id @default(uuid(7)) @db.Uuid
+  email           String     @unique @db.VarChar(254)
+  passwordHash    String?
+  role            UserRole   @default(LISTENER)
+  status          UserStatus @default(ACTIVE)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+
+model RefreshToken {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId  String    @db.Uuid
+  tokenHash String    @unique @db.Char(64)
+  expiresAt DateTime
+  revokedAt DateTime?
+  rotatedAt DateTime?
+  userAgent String?   @db.VarChar(512)
+  createdAt DateTime  @default(now())
+
+  @@index([familyId])
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}

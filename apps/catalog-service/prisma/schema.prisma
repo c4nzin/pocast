@@ -1,0 +1,131 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PodcastSource {
+  RSS 
+  HOSTED 
+}
+
+enum PodcastStatus {
+  ACTIVE
+  HIDDEN 
+  BLOCKED 
+}
+
+enum EpisodeType {
+  FULL
+  TRAILER
+  BONUS
+}
+
+enum MediaKind {
+  EXTERNAL_URL
+  HOSTED_ASSET
+}
+
+enum MediaType {
+  AUDIO
+  VIDEO
+}
+
+model Podcast {
+
+
+  id     String        @id @default(uuid(7)) @db.Uuid
+  guid   String?       @unique
+  source PodcastSource
+  status PodcastStatus @default(ACTIVE)
+
+  title       String
+  author      String?
+  description String?
+  imageUrl    String?
+  websiteUrl  String?
+  language    String?  @db.VarChar(35)
+  explicit    Boolean  @default(false)
+  ownerName   String?
+  ownerEmail  String? 
+
+  feedUrl           String?   @unique
+  feedEtag          String?
+  feedLastModified  String?
+  feedContentHash   String?
+  lastFetchedAt     DateTime?
+  nextFetchAt       DateTime?
+  consecutiveErrors Int       @default(0)
+  lastError         String?
+
+  episodeCount    Int       @default(0)
+  latestEpisodeAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  episodes   Episode[]
+  categories PodcastCategory[]
+
+  @@index([status, latestEpisodeAt(sort: Desc), id])
+  @@index([language, status, latestEpisodeAt(sort: Desc)])
+  @@index([nextFetchAt])
+  @@map("podcasts")
+}
+
+model Episode {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  podcastId String  @db.Uuid
+  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  guid      String
+
+  title           String
+  description     String?
+  imageUrl        String?
+  publishedAt     DateTime
+  durationSeconds Int?
+  season          Int?
+  episodeNumber   Int?
+  episodeType     EpisodeType @default(FULL)
+  explicit        Boolean     @default(false)
+
+  mediaKind      MediaKind
+  mediaType      MediaType @default(AUDIO)
+  mediaUrl       String
+  mediaMimeType  String?
+  mediaSizeBytes BigInt?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([podcastId, guid])
+  @@index([podcastId, publishedAt(sort: Desc), id])
+  @@map("episodes")
+}
+
+model Category {
+  id       Int        @id @default(autoincrement())
+  slug     String     @unique
+  parentId Int?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+
+  podcasts PodcastCategory[]
+
+  @@map("categories")
+}
+
+model PodcastCategory {
+  podcastId  String   @db.Uuid
+  categoryId Int
+  podcast    Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([podcastId, categoryId])
+  @@index([categoryId, podcastId])
+  @@map("podcast_categories")
+}
