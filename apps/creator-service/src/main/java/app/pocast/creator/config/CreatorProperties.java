@@ -4,7 +4,7 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pocast.creator")
-public record CreatorProperties(String queue, Media media, Feed feed) {
+public record CreatorProperties(String queue, String catalogIngestQueue, Media media, Feed feed) {
 
 	public record Media(
 			String bucket,

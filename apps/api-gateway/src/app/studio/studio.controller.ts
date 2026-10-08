@@ -26,6 +26,8 @@ import {
   type CreatorShow,
   type EpisodeRefCommand,
   type PresignedUpload,
+  type RequestArtworkUploadCommand,
+  RequestArtworkUploadDto,
   type RequestUploadCommand,
   RequestUploadDto,
   type ShowRefCommand,
@@ -95,6 +97,42 @@ export class StudioController {
       category: body.category ? resolveCategory(body.category) : undefined,
     };
     return sendRpc(this.creatorClient, CREATOR_PATTERNS.UPDATE_SHOW, command);
+  }
+
+  @Post('shows/:showId/artwork')
+  @Header('Cache-Control', PRIVATE_NO_STORE)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 20, ttl: MINUTE_MS } })
+  requestArtworkUpload(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('showId', ParseUUIDPipe) showId: string,
+    @Body() body: RequestArtworkUploadDto,
+  ): Promise<PresignedUpload> {
+    const command: RequestArtworkUploadCommand = {
+      ...body,
+      userId: user.userId,
+      showId,
+    };
+    return sendRpc(
+      this.creatorClient,
+      CREATOR_PATTERNS.REQUEST_ARTWORK_UPLOAD,
+      command,
+    );
+  }
+
+  @Post('shows/:showId/artwork/complete')
+  @Header('Cache-Control', PRIVATE_NO_STORE)
+  @HttpCode(HttpStatus.OK)
+  completeArtworkUpload(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('showId', ParseUUIDPipe) showId: string,
+  ): Promise<CreatorShow> {
+    const command: ShowRefCommand = { userId: user.userId, showId };
+    return sendRpc(
+      this.creatorClient,
+      CREATOR_PATTERNS.COMPLETE_ARTWORK_UPLOAD,
+      command,
+    );
   }
 
   @Post('shows/:showId/episodes')

@@ -18,12 +18,15 @@ import {
   type AudioContentType,
   type CreatorEpisodeType,
   EPISODE_TYPES,
+  IMAGE_CONTENT_TYPES,
+  type ImageContentType,
   type PublishStatus,
 } from './creator.patterns.js';
 
 export const SHOW_TITLE_MAX = 255;
 export const SHOW_DESCRIPTION_MAX = 4000;
 export const UPLOAD_MAX_BYTES = 500 * 1024 * 1024;
+export const ARTWORK_MAX_BYTES = 10 * 1024 * 1024;
 export const EPISODE_DURATION_MAX_SECONDS = 7 * 24 * 60 * 60;
 
 const CATEGORY_MESSAGE = { message: 'category must be a known category slug' };
@@ -127,6 +130,16 @@ export class RequestUploadDto {
   sizeBytes!: number;
 }
 
+export class RequestArtworkUploadDto {
+  @IsIn(IMAGE_CONTENT_TYPES)
+  contentType!: ImageContentType;
+
+  @IsInt()
+  @Min(1)
+  @Max(ARTWORK_MAX_BYTES)
+  sizeBytes!: number;
+}
+
 export class CompleteUploadDto {
   @IsInt()
   @Min(1)
@@ -179,6 +192,11 @@ export interface RequestUploadCommand extends RequestUploadDto {
   readonly episodeId: string;
 }
 
+export interface RequestArtworkUploadCommand extends RequestArtworkUploadDto {
+  readonly userId: string;
+  readonly showId: string;
+}
+
 export interface CompleteUploadCommand extends CompleteUploadDto {
   readonly userId: string;
   readonly episodeId: string;
@@ -222,7 +240,7 @@ export interface CreatorEpisode {
 export interface PresignedUpload {
   readonly url: string;
   readonly method: 'PUT';
-  readonly contentType: AudioContentType;
+  readonly contentType: AudioContentType | ImageContentType;
   readonly expiresAt: string;
 }
 

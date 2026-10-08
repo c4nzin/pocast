@@ -99,7 +99,9 @@ public class EpisodeService {
 		}
 		var now = Timestamps.now(clock);
 		episode.publish(now);
-		showService.requireOwned(episode.getShowId(), command.userId()).publish(now);
+		var show = showService.requireOwned(episode.getShowId(), command.userId());
+		show.publish(now);
+		showService.notifyCatalog(show);
 		return toView(episode);
 	}
 

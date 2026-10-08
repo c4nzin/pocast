@@ -28,6 +28,11 @@ public class InfrastructureConfig {
 		return new Queue(properties.queue(), true);
 	}
 
+	@Bean
+	Queue catalogIngestQueue(CreatorProperties properties) {
+		return new Queue(properties.catalogIngestQueue(), true);
+	}
+
 	@Bean(destroyMethod = "close")
 	S3Client s3Client(CreatorProperties properties) {
 		var media = properties.media();

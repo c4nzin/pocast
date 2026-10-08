@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, type PodcastSource } from '../../generated/prisma/client';
 import { CategoryRegistry } from '../categories/category-registry.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { syncEpisodes } from './episode-sync';
@@ -107,6 +107,34 @@ export class FeedIngestService {
     }
   }
 
+  async upsertHostedFeed(rawUrl: string, xml: string): Promise<string> {
+    const feedUrl = normalizeFeedUrl(rawUrl);
+    const parsed = parseFeed(xml);
+    const meta = { etag: null, lastModified: null, contentHash: sha256(xml) };
+    const existing = await this.prisma.podcast.findUnique({
+      where: { feedUrl },
+      select: { id: true, source: true, feedContentHash: true },
+    });
+    if (existing && existing.source !== 'HOSTED') {
+      throw new Error(`Feed ${feedUrl} already belongs to an RSS podcast`);
+    }
+    if (existing?.feedContentHash === meta.contentHash) {
+      return existing.id;
+    }
+    if (existing) {
+      await this.updatePodcast(existing.id, parsed, meta);
+      return existing.id;
+    }
+    try {
+      return await this.createPodcast(feedUrl, parsed, meta, 'HOSTED');
+    } catch (error: unknown) {
+      const winner =
+        isUniqueViolation(error) && (await this.findIdByFeedUrl(feedUrl));
+      if (winner) return this.upsertHostedFeed(rawUrl, xml);
+      throw error;
+    }
+  }
+
   async refreshFeed(podcastId: string): Promise<RefreshOutcome> {
     const podcast = await this.prisma.podcast.findUnique({
       where: { id: podcastId },
@@ -176,12 +204,13 @@ export class FeedIngestService {
     feedUrl: string,
     feed: ParsedFeed,
     meta: FetchMeta,
+    source: PodcastSource = 'RSS',
   ): Promise<string> {
     const guid = await this.claimableGuid(feed.guid, null);
     return this.prisma.$transaction(
       async (tx) => {
         const { id } = await tx.podcast.create({
-          data: { ...metadataOf(feed), source: 'RSS', feedUrl, guid },
+          data: { ...metadataOf(feed), source, feedUrl, guid },
           select: { id: true },
         });
         await this.persistChildren(tx, id, feed, meta);

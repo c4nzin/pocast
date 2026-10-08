@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { CATALOG_INGEST_QUEUE, DEFAULT_RABBITMQ_URL } from '@pocast/contracts';
+import {
+  CATALOG_INGEST_QUEUE,
+  CREATOR_QUEUE,
+  CREATOR_SERVICE,
+  DEFAULT_RABBITMQ_URL,
+} from '@pocast/contracts';
 import { CatalogQueryService } from './catalog/catalog-query.service';
 import { CatalogController } from './catalog/catalog.controller';
 import { CategoryRegistry } from './categories/category-registry.service';
 import { FeedFetcher, HttpFeedFetcher } from './ingest/feed-fetcher';
 import { FeedIngestService } from './ingest/feed-ingest.service';
+import { HostedFeedSync } from './ingest/hosted-feed-sync.service';
 import { IngestController } from './ingest/ingest.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import {
@@ -29,6 +35,17 @@ import {
           },
         }),
       },
+      {
+        name: CREATOR_SERVICE,
+        useFactory: () => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [process.env['RABBITMQ_URL'] ?? DEFAULT_RABBITMQ_URL],
+            queue: CREATOR_QUEUE,
+            queueOptions: { durable: true },
+          },
+        }),
+      },
     ]),
   ],
   controllers: [CatalogController, IngestController],
@@ -36,6 +53,7 @@ import {
     CategoryRegistry,
     CatalogQueryService,
     FeedIngestService,
+    HostedFeedSync,
     FeedScheduler,
     { provide: FeedFetcher, useFactory: () => new HttpFeedFetcher() },
   ],

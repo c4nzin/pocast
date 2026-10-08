@@ -7,8 +7,14 @@ export const CATALOG_PATTERNS = {
 
 export const CATALOG_EVENTS = {
   FEED_REFRESH: 'catalog.feed.refresh',
+  HOSTED_SYNC: 'catalog.hosted.sync',
 } as const;
 
 export interface FeedRefreshJob {
   readonly podcastId: string;
+}
+
+export interface HostedSyncJob {
+  readonly showId: string;
+  readonly feedUrl: string;
 }

@@ -48,6 +48,12 @@ public class Show {
 	@Column(name = "image_url", columnDefinition = "text")
 	private String imageUrl;
 
+	@Column(name = "pending_image_key", columnDefinition = "text")
+	private String pendingImageKey;
+
+	@Column(name = "pending_image_type")
+	private String pendingImageType;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private PublishStatus status = PublishStatus.DRAFT;
@@ -106,6 +112,27 @@ public class Show {
 			publishedAt = now;
 		}
 		updatedAt = now;
+	}
+
+	public void startArtworkUpload(String key, String contentType, Instant now) {
+		pendingImageKey = key;
+		pendingImageType = contentType;
+		updatedAt = now;
+	}
+
+	public void attachArtwork(String url, Instant now) {
+		imageUrl = url;
+		pendingImageKey = null;
+		pendingImageType = null;
+		updatedAt = now;
+	}
+
+	public String getPendingImageKey() {
+		return pendingImageKey;
+	}
+
+	public String getPendingImageType() {
+		return pendingImageType;
 	}
 
 	public boolean isPublished() {

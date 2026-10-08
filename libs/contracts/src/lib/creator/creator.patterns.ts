@@ -6,6 +6,8 @@ export const CREATOR_PATTERNS = {
   UPDATE_SHOW: 'creator.show.update',
   GET_SHOW: 'creator.show.get',
   LIST_SHOWS: 'creator.show.list',
+  REQUEST_ARTWORK_UPLOAD: 'creator.show.artwork.request',
+  COMPLETE_ARTWORK_UPLOAD: 'creator.show.artwork.complete',
   CREATE_EPISODE: 'creator.episode.create',
   LIST_EPISODES: 'creator.episode.list',
   GET_EPISODE: 'creator.episode.get',
@@ -28,3 +30,6 @@ export const AUDIO_CONTENT_TYPES = [
 export type AudioContentType = (typeof AUDIO_CONTENT_TYPES)[number];
 
 export type PublishStatus = 'DRAFT' | 'PUBLISHED';
+
+export const IMAGE_CONTENT_TYPES = ['image/jpeg', 'image/png'] as const;
+export type ImageContentType = (typeof IMAGE_CONTENT_TYPES)[number];

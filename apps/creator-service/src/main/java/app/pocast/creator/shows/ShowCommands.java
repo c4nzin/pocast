@@ -2,8 +2,10 @@ package app.pocast.creator.shows;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
@@ -12,6 +14,8 @@ public final class ShowCommands {
 	public static final String LANGUAGE_TAG = "^[a-z]{2,3}(-[a-z0-9]{1,8})*$";
 	public static final int TITLE_MAX = 255;
 	public static final int DESCRIPTION_MAX = 4000;
+	public static final String IMAGE_TYPES = "^image/(jpeg|png)$";
+	public static final long ARTWORK_MAX_BYTES = 10L * 1024 * 1024;
 
 	private ShowCommands() {
 	}
@@ -47,5 +51,12 @@ public final class ShowCommands {
 			@Pattern(regexp = LANGUAGE_TAG) String language,
 			@Valid Category category,
 			Boolean explicit) {
+	}
+
+	public record RequestArtworkUpload(
+			@NotNull UUID userId,
+			@NotNull UUID showId,
+			@NotNull @Pattern(regexp = IMAGE_TYPES) String contentType,
+			@Positive @Max(ARTWORK_MAX_BYTES) long sizeBytes) {
 	}
 }
