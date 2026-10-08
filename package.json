@@ -5,7 +5,7 @@
   "scripts": {
     "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
-    "dev": "nx run-many -t serve -p api-gateway catalog-service auth-service",
+    "dev": "nx run-many -t serve -p api-gateway catalog-service auth-service library-service creator-service",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",
@@ -13,7 +13,7 @@
     "affected": "nx affected -t lint test build typecheck",
     "graph": "nx graph",
     "db:migrate": "nx run-many -t prisma-migrate",
-    "db:deploy": "nx run-many -t prisma-deploy prisma-deploy-test",
+    "db:deploy": "nx run-many -t prisma-deploy prisma-deploy-test db-deploy db-deploy-test",
     "db:studio": "nx run @pocast/catalog-service:prisma-studio",
     "check:deps": "node tools/scripts/check-single-nest-instance.mjs"
   },

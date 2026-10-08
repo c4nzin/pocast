@@ -1,0 +1,67 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@pocast/library-service",
+  "projectType": "application",
+  "sourceRoot": "apps/library-service/src",
+  "tags": ["type:app", "scope:library", "lang:dotnet"],
+  "namedInputs": {
+    "dotnet": [
+      "{projectRoot}/**/*.cs",
+      "{projectRoot}/**/*.csproj",
+      "{projectRoot}/**/*.sql",
+      "{projectRoot}/*.sln",
+      "{projectRoot}/global.json"
+    ]
+  },
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["dotnet"],
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet publish src/Pocast.Library -c Release -o dist"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet run --project src/Pocast.Library"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "inputs": ["dotnet"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet test"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["dotnet"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet format --verify-no-changes"
+      }
+    },
+    "db-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet run --project src/Pocast.Library -- migrate"
+      }
+    },
+    "db-deploy-test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "dotnet run --project src/Pocast.Library -- migrate --test"
+      }
+    }
+  }
+}

@@ -14,22 +14,8 @@ jobs:
   main:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: pocast
-          POSTGRES_PASSWORD: pocast
-          POSTGRES_DB: pocast_catalog_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U pocast -d pocast_catalog_test"
-          --health-interval 5s --health-timeout 5s --health-retries 10
-
     env:
-      CATALOG_TEST_DATABASE_URL: postgresql://pocast:pocast@localhost:5432/pocast_catalog_test
-      AUTH_TEST_DATABASE_URL: postgresql://pocast:pocast@localhost:5432/pocast_auth_test
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
 
     steps:
       - uses: actions/checkout@v5
@@ -44,6 +30,16 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: apps/library-service/global.json
+
       - run: pnpm install --frozen-lockfile
 
       - uses: nrwl/nx-set-shas@v4
@@ -51,6 +47,4 @@ jobs:
       - run: pnpm check:deps
       - run: pnpm nx sync:check
       - run: pnpm nx format:check
-      - run: PGPASSWORD=pocast psql -h localhost -U pocast -d pocast_catalog_test -c 'CREATE DATABASE pocast_auth_test'
-      - run: pnpm nx run-many -t prisma-deploy-test
       - run: pnpm nx affected -t lint test build typecheck

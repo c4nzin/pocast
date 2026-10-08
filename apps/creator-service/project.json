@@ -1,0 +1,50 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@pocast/creator-service",
+  "projectType": "application",
+  "sourceRoot": "apps/creator-service/src",
+  "tags": ["type:app", "scope:creator", "lang:java"],
+  "namedInputs": {
+    "java": [
+      "{projectRoot}/src/**/*",
+      "{projectRoot}/pom.xml",
+      "{projectRoot}/.mvn/wrapper/maven-wrapper.properties"
+    ]
+  },
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["java"],
+      "outputs": ["{projectRoot}/target/creator-service.jar"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "node ../../tools/scripts/mvnw.mjs -B -q package -DskipTests"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "node ../../tools/scripts/mvnw.mjs -B -q spring-boot:run"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "inputs": ["java"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "node ../../tools/scripts/mvnw.mjs -B -q test"
+      }
+    },
+    "db-deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "java -jar target/creator-service.jar migrate"
+      }
+    }
+  }
+}

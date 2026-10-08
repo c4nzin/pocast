@@ -54,6 +54,14 @@ services:
       timeout: 5s
       retries: 10
 
+  s3:
+    image: adobe/s3mock:latest
+    container_name: pocast-s3
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: pocast-media
+    ports:
+      - '9090:9090'
+
 volumes:
   rabbitmq-data:
   postgres-data:
