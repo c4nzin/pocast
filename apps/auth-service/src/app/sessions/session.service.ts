@@ -9,6 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { generateOpaqueToken, hashOpaqueToken } from '../crypto/opaque-token';
 import { PrismaService } from '../prisma/prisma.service';
 import { SESSION_SUMMARY_SELECT, toSessionSummary } from './session-mappers';
+import { Prisma } from '../../generated/prisma/client';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 export const REFRESH_TOKEN_TTL_MS = REFRESH_TOKEN_TTL_DAYS * DAY_MS;
@@ -93,8 +94,11 @@ export class SessionService {
     if (row) await this.revokeFamily(row.familyId, new Date());
   }
 
-  async revokeAll(userId: string): Promise<number> {
-    const result = await this.prisma.refreshToken.updateMany({
+  async revokeAll(
+    userId: string,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<number> {
+    const result = await client.refreshToken.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });

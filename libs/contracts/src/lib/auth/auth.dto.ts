@@ -45,6 +45,27 @@ export class RefreshTokenDto {
   refreshToken!: string;
 }
 
+export class ChangePasswordDto {
+  @IsString()
+  @MaxLength(PASSWORD_MAX_LENGTH)
+  oldPassword!: string;
+
+  @IsString()
+  @MinLength(PASSWORD_MIN_LENGTH)
+  @MaxLength(PASSWORD_MAX_LENGTH)
+  newPassword!: string;
+}
+
+export class ChangePasswordCommand extends ChangePasswordDto {
+  @IsUUID()
+  userId!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(USER_AGENT_MAX_LENGTH)
+  userAgent?: string;
+}
+
 export class RegisterCommand extends RegisterDto {
   @IsOptional()
   @IsString()

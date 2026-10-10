@@ -3,6 +3,7 @@ import {
   ACCESS_TOKEN_TTL_SECONDS,
   AuthSession,
   AuthTokens,
+  ChangePasswordCommand,
   LoginCommand,
   RefreshCommand,
   RegisterCommand,
@@ -130,6 +131,47 @@ export class AuthService {
     });
     if (!user) throw rpcError(HttpStatus.NOT_FOUND, 'User not found');
     return toProfile(user);
+  }
+
+  async changePassword(command: ChangePasswordCommand): Promise<AuthSession> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: command.userId,
+        status: 'ACTIVE',
+        passwordHash: { not: null },
+      },
+    });
+
+    if (!user || !user.passwordHash) {
+      throw rpcError(HttpStatus.UNAUTHORIZED, 'User not found');
+    }
+
+    const isValidPassword = await this.hasher.verify(
+      user.passwordHash,
+      command.oldPassword,
+    );
+    if (!isValidPassword) {
+      throw rpcError(HttpStatus.UNAUTHORIZED, 'Invalid current password');
+    }
+
+    if (command.oldPassword === command.newPassword) {
+      throw rpcError(
+        HttpStatus.BAD_REQUEST,
+        'New password must be different from the current password',
+      );
+    }
+
+    const newPasswordHash = await this.hasher.hash(command.newPassword);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: command.userId },
+        data: { passwordHash: newPasswordHash },
+      });
+      await this.sessions.revokeAll(command.userId, tx);
+    });
+
+    return this.startSession(user, command.userAgent);
   }
 
   private async startSession(

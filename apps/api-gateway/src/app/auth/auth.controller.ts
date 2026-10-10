@@ -19,6 +19,8 @@ import {
   AUTH_SERVICE,
   AuthSession,
   AuthTokens,
+  ChangePasswordCommand,
+  ChangePasswordDto,
   LoginCommand,
   LoginDto,
   RefreshCommand,
@@ -135,5 +137,23 @@ export class AuthController {
   ): Promise<{ ok: true }> {
     const command: RevokeSessionCommand = { userId: user.userId, sessionId };
     return sendRpc(this.authClient, AUTH_PATTERNS.REVOKE_SESSION, command);
+  }
+
+  @Post('change-password')
+  @Header('Cache-Control', NO_STORE)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: MINUTE_MS } })
+  @Authenticated()
+  changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: ChangePasswordDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<AuthSession> {
+    const command: ChangePasswordCommand = {
+      userId: user.userId,
+      userAgent: userAgentOf(userAgent),
+      ...body,
+    };
+    return sendRpc(this.authClient, AUTH_PATTERNS.CHANGE_PASSWORD, command);
   }
 }

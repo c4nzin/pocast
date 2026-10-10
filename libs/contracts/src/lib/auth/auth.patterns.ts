@@ -10,6 +10,7 @@ export const AUTH_PATTERNS = {
   GET_USER: 'auth.user.get',
   LIST_SESSIONS: 'auth.session.list',
   REVOKE_SESSION: 'auth.session.revoke',
+  CHANGE_PASSWORD: 'auth.password.change',
 } as const;
 
 export const JWT_ISSUER = 'pocast-auth';

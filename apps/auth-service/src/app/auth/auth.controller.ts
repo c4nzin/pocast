@@ -4,6 +4,7 @@ import {
   AUTH_PATTERNS,
   AuthSession,
   AuthTokens,
+  ChangePasswordCommand,
   LoginCommand,
   RefreshCommand,
   RefreshTokenDto,
@@ -62,5 +63,12 @@ export class AuthController {
   ): Promise<{ ok: true }> {
     await this.auth.revokeSession(command.userId, command.sessionId);
     return { ok: true };
+  }
+
+  @MessagePattern(AUTH_PATTERNS.CHANGE_PASSWORD)
+  changePassword(
+    @Payload() command: ChangePasswordCommand,
+  ): Promise<AuthSession> {
+    return this.auth.changePassword(command);
   }
 }
