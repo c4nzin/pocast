@@ -4,6 +4,7 @@ export const CATALOG_PATTERNS = {
   SEARCH_PODCASTS: 'catalog.podcast.search',
   GET_PODCAST: 'catalog.podcast.get',
   LIST_EPISODES: 'catalog.episode.list',
+  GET_EPISODE: 'catalog.episode.get',
 } as const;
 
 export const CATALOG_EVENTS = {

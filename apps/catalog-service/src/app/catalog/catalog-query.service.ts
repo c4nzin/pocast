@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import {
   Episode,
+  GetEpisodeQueryDto,
   ListEpisodesQueryDto,
   ListPodcastsQueryDto,
   Page,
@@ -119,5 +120,24 @@ export class CatalogQueryService {
       id: row.id,
     }));
     return { items: page.items.map(toEpisode), nextCursor: page.nextCursor };
+  }
+
+  async getEpisode(query: GetEpisodeQueryDto): Promise<Episode> {
+    const row = await this.prisma.episode.findFirst({
+      where: {
+        id: query.episodeId,
+        podcastId: query.podcastId,
+        podcast: { status: 'ACTIVE' },
+      },
+      select: EPISODE_SELECT,
+    });
+
+    if (!row) {
+      throw notFound(
+        `Episode ${query.episodeId} not found for podcast ${query.podcastId}`,
+      );
+    }
+
+    return toEpisode(row);
   }
 }

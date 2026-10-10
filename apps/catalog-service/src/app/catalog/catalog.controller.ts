@@ -3,6 +3,7 @@ import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import {
   CATALOG_PATTERNS,
   Episode,
+  GetEpisodeQueryDto,
   ImportFeedDto,
   ListEpisodesQueryDto,
   ListPodcastsQueryDto,
@@ -77,5 +78,10 @@ export class CatalogController {
       this.logger.error(`Import failed for ${input.feedUrl}`, error as Error);
       throw error;
     }
+  }
+
+  @MessagePattern(CATALOG_PATTERNS.GET_EPISODE)
+  getEpisode(@Payload() query: GetEpisodeQueryDto): Promise<Episode> {
+    return this.queries.getEpisode(query);
   }
 }

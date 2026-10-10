@@ -15,6 +15,7 @@ import {
   CATALOG_PATTERNS,
   CATALOG_SERVICE,
   Episode,
+  GetEpisodeQueryDto,
   ImportFeedDto,
   ListEpisodesQueryDto,
   ListPodcastsQueryDto,
@@ -76,5 +77,15 @@ export class PodcastsController {
       input,
       IMPORT_TIMEOUT_MS,
     );
+  }
+
+  @Get(':id/episodes/:episodeId')
+  @Header('Cache-Control', CATALOG_CACHE_CONTROL)
+  getEpisode(
+    @Param('id', ParseUUIDPipe) podcastId: string,
+    @Param('episodeId', ParseUUIDPipe) episodeId: string,
+  ): Promise<Episode> {
+    const query: GetEpisodeQueryDto = { podcastId, episodeId };
+    return sendRpc(this.catalogClient, CATALOG_PATTERNS.GET_EPISODE, query);
   }
 }

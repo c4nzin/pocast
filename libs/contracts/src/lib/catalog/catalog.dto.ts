@@ -51,6 +51,16 @@ export class ListEpisodesQueryDto extends PageQueryDto {
   podcastId!: string;
 }
 
+export class GetEpisodeQueryDto {
+  @IsString()
+  @IsUUID()
+  podcastId!: string;
+
+  @IsString()
+  @IsUUID()
+  episodeId!: string;
+}
+
 export class ImportFeedDto {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
   @MaxLength(FEED_URL_MAX_LENGTH)
