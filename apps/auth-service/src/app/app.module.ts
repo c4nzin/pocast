@@ -5,6 +5,7 @@ import { AccessTokenSigner } from './crypto/access-token-signer';
 import { PasswordHasher } from './crypto/password-hasher';
 import { PrismaService } from './prisma/prisma.service';
 import { SessionService } from './sessions/session.service';
+import { RefreshTokenCleanerService } from './scheduler/refresh-token-cleaner.service';
 
 @Module({
   controllers: [AuthController],
@@ -14,6 +15,7 @@ import { SessionService } from './sessions/session.service';
     AccessTokenSigner,
     SessionService,
     AuthService,
+    RefreshTokenCleanerService,
   ],
 })
 export class AppModule {}
