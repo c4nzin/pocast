@@ -1,6 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import {
+  CATEGORIES,
+  CATEGORY_CACHE_TTL_MS,
+  CategoryDefinition,
+  CategoryNode,
   Episode,
   GetEpisodeQueryDto,
   ListEpisodesQueryDto,
@@ -34,6 +38,9 @@ function notFound(what: string): RpcException {
 
 @Injectable()
 export class CatalogQueryService {
+  private cached?: { value: CategoryNode[]; expiresAt: number };
+  private inFlight?: Promise<CategoryNode[]>;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly categories: CategoryRegistry,
@@ -139,5 +146,55 @@ export class CatalogQueryService {
     }
 
     return toEpisode(row);
+  }
+
+  listCategories(): Promise<CategoryNode[]> {
+    if (this.cached && this.cached.expiresAt > Date.now()) {
+      return Promise.resolve(this.cached.value);
+    }
+    if (this.inFlight) {
+      return this.inFlight;
+    }
+    this.inFlight = this.loadCategories().finally(() => {
+      this.inFlight = undefined;
+    });
+    return this.inFlight;
+  }
+
+  private async loadCategories(): Promise<CategoryNode[]> {
+    const rows = await this.prisma.podcastCategory.groupBy({
+      by: ['categoryId'],
+      where: { podcast: { status: 'ACTIVE' } },
+      _count: true,
+    });
+    const countsById = new Map(rows.map((r) => [r.categoryId, r._count]));
+
+    const toNode = (
+      category: CategoryDefinition,
+      children: CategoryNode[],
+    ): CategoryNode => ({
+      slug: category.slug,
+      name: category.name,
+      podcastCount:
+        countsById.get(this.categories.idFor(category.slug) ?? -1) ?? 0,
+      children,
+    });
+    const byName = (a: CategoryDefinition, b: CategoryDefinition) =>
+      a.name.localeCompare(b.name);
+
+    const value = CATEGORIES.filter((c) => c.parentSlug === null)
+      .sort(byName)
+      .map((parent) =>
+        toNode(
+          parent,
+          CATEGORIES.filter((c) => c.parentSlug === parent.slug)
+            .sort(byName)
+            .map((child) => toNode(child, [])),
+        ),
+      );
+
+    this.cached = { value, expiresAt: Date.now() + CATEGORY_CACHE_TTL_MS };
+
+    return value;
   }
 }

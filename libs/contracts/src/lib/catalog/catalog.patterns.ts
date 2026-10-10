@@ -5,6 +5,7 @@ export const CATALOG_PATTERNS = {
   GET_PODCAST: 'catalog.podcast.get',
   LIST_EPISODES: 'catalog.episode.list',
   GET_EPISODE: 'catalog.episode.get',
+  LIST_CATEGORIES: 'catalog.category.list',
 } as const;
 
 export const CATALOG_EVENTS = {

@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health.controller';
 import { LibraryModule } from './library/library.module';
 import { StudioModule } from './studio/studio.module';
+import { CategoriesModule } from './categories/categories.module';
 import { PodcastsModule } from './podcasts/podcasts.module';
 
 export const DEFAULT_RATE_LIMIT = { ttl: 60_000, limit: 300 } as const;
@@ -30,6 +31,7 @@ function requireRedisUrl(): string {
     }),
     AuthModule,
     PodcastsModule,
+    CategoriesModule,
     LibraryModule,
     StudioModule,
   ],

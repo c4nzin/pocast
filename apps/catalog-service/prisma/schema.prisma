@@ -36,8 +36,6 @@ enum MediaType {
 }
 
 model Podcast {
-
-
   id     String        @id @default(uuid(7)) @db.Uuid
   guid   String?       @unique
   source PodcastSource

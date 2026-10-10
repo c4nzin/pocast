@@ -2,6 +2,7 @@ import { Controller, HttpStatus, Logger, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import {
   CATALOG_PATTERNS,
+  CategoryNode,
   Episode,
   GetEpisodeQueryDto,
   ImportFeedDto,
@@ -83,5 +84,10 @@ export class CatalogController {
   @MessagePattern(CATALOG_PATTERNS.GET_EPISODE)
   getEpisode(@Payload() query: GetEpisodeQueryDto): Promise<Episode> {
     return this.queries.getEpisode(query);
+  }
+
+  @MessagePattern(CATALOG_PATTERNS.LIST_CATEGORIES)
+  listCategories(): Promise<CategoryNode[]> {
+    return this.queries.listCategories();
   }
 }

@@ -18,6 +18,7 @@ export const PAGE_DEFAULT_LIMIT = 20;
 export const PAGE_MAX_LIMIT = 50;
 export const CURSOR_MAX_LENGTH = 200;
 export const FEED_URL_MAX_LENGTH = 2048;
+export const CATEGORY_CACHE_TTL_MS = 60_000;
 
 export const LANGUAGE_TAG_PATTERN = /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/;
 
@@ -110,4 +111,11 @@ export interface Episode {
   readonly episodeType: 'FULL' | 'TRAILER' | 'BONUS';
   readonly explicit: boolean;
   readonly media: EpisodeMedia;
+}
+
+export interface CategoryNode {
+  readonly slug: string;
+  readonly name: string;
+  readonly podcastCount: number;
+  readonly children: readonly CategoryNode[];
 }
