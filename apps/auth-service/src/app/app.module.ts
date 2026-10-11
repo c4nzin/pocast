@@ -6,9 +6,11 @@ import { PasswordHasher } from './crypto/password-hasher';
 import { PrismaService } from './prisma/prisma.service';
 import { SessionService } from './sessions/session.service';
 import { RefreshTokenCleanerService } from './scheduler/refresh-token-cleaner.service';
+import { HealthController } from './health/health.controller';
+import { HealthService } from './health/health.service';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, HealthController],
   providers: [
     PrismaService,
     PasswordHasher,
@@ -16,6 +18,7 @@ import { RefreshTokenCleanerService } from './scheduler/refresh-token-cleaner.se
     SessionService,
     AuthService,
     RefreshTokenCleanerService,
+    HealthService,
   ],
 })
 export class AppModule {}

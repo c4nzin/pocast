@@ -8,4 +8,5 @@ export const LIBRARY_PATTERNS = {
   SAVE_PROGRESS: 'library.progress.save',
   GET_PROGRESS: 'library.progress.get',
   LIST_IN_PROGRESS: 'library.progress.list',
+  HEALTH_CHECK: 'library.health.check',
 } as const;

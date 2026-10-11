@@ -3,6 +3,7 @@ package app.pocast.creator.config;
 import app.pocast.creator.episodes.EpisodeCommands;
 import app.pocast.creator.episodes.EpisodeService;
 import app.pocast.creator.feed.FeedService;
+import app.pocast.creator.health.HealthService;
 import app.pocast.creator.rpc.CommandReader;
 import app.pocast.creator.rpc.RpcHandler;
 import app.pocast.creator.rpc.RpcRouter;
@@ -16,7 +17,12 @@ import org.springframework.context.annotation.Configuration;
 public class RpcConfig {
 
 	@Bean
-	RpcRouter rpcRouter(CommandReader reader, ShowService shows, EpisodeService episodes, FeedService feeds) {
+	RpcRouter rpcRouter(
+			CommandReader reader,
+			ShowService shows,
+			EpisodeService episodes,
+			FeedService feeds,
+			HealthService health) {
 		return new RpcRouter(Map.<String, RpcHandler>ofEntries(
 				Map.entry("creator.show.create", data -> shows.create(reader.read(data, ShowCommands.CreateShow.class))),
 				Map.entry("creator.show.update", data -> shows.update(reader.read(data, ShowCommands.UpdateShow.class))),
@@ -36,6 +42,7 @@ public class RpcConfig {
 						data -> episodes.requestUpload(reader.read(data, EpisodeCommands.RequestUpload.class))),
 				Map.entry("creator.media.upload.complete",
 						data -> episodes.completeUpload(reader.read(data, EpisodeCommands.CompleteUpload.class))),
-				Map.entry("creator.feed.get", data -> feeds.render(reader.read(data, FeedService.FeedRequest.class)))));
+				Map.entry("creator.feed.get", data -> feeds.render(reader.read(data, FeedService.FeedRequest.class))),
+				Map.entry("creator.health.check", data -> health.check())));
 	}
 }

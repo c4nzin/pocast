@@ -10,6 +10,7 @@ public static class LibraryPatterns
     public const string SaveProgress = "library.progress.save";
     public const string GetProgress = "library.progress.get";
     public const string ListInProgress = "library.progress.list";
+    public const string HealthCheck = "library.health.check";
 }
 
 public static class LibraryLimits

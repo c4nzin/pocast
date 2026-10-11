@@ -10,3 +10,4 @@ export * from './lib/library/library.patterns.js';
 export * from './lib/library/library.dto.js';
 export * from './lib/creator/creator.patterns.js';
 export * from './lib/creator/creator.dto.js';
+export * from './lib/health/health.js';

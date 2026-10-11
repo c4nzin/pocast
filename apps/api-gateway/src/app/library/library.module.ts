@@ -26,5 +26,6 @@ import { LibraryController } from './library.controller';
     ]),
   ],
   controllers: [LibraryController],
+  exports: [ClientsModule],
 })
 export class LibraryModule {}

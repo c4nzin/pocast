@@ -28,6 +28,6 @@ import { AuthGuard } from './auth.guard';
   ],
   controllers: [AuthController],
   providers: [AccessTokenVerifier, AuthGuard],
-  exports: [AccessTokenVerifier, AuthGuard],
+  exports: [AccessTokenVerifier, AuthGuard, ClientsModule],
 })
 export class AuthModule {}

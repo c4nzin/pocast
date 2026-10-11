@@ -19,6 +19,8 @@ import {
   FeedScheduler,
   INGEST_PUBLISHER,
 } from './scheduler/feed-scheduler.service';
+import { HealthService } from './health/health.service';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -49,7 +51,7 @@ import {
       },
     ]),
   ],
-  controllers: [CatalogController, IngestController],
+  controllers: [CatalogController, IngestController, HealthController],
   providers: [
     CategoryRegistry,
     CatalogQueryService,
@@ -57,6 +59,7 @@ import {
     FeedIngestService,
     HostedFeedSync,
     FeedScheduler,
+    HealthService,
     { provide: FeedFetcher, useFactory: () => new HttpFeedFetcher() },
   ],
 })

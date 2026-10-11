@@ -15,6 +15,7 @@ export const CREATOR_PATTERNS = {
   REQUEST_UPLOAD: 'creator.media.upload.request',
   COMPLETE_UPLOAD: 'creator.media.upload.complete',
   GET_FEED: 'creator.feed.get',
+  HEALTH_CHECK: 'creator.health.check',
 } as const;
 
 export const EPISODE_TYPES = ['FULL', 'TRAILER', 'BONUS'] as const;

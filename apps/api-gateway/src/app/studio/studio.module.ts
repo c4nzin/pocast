@@ -25,5 +25,6 @@ import { StudioController } from './studio.controller';
     ]),
   ],
   controllers: [StudioController, FeedsController],
+  exports: [ClientsModule],
 })
 export class StudioModule {}

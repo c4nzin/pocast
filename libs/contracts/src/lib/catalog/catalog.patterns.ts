@@ -6,6 +6,7 @@ export const CATALOG_PATTERNS = {
   LIST_EPISODES: 'catalog.episode.list',
   GET_EPISODE: 'catalog.episode.get',
   LIST_CATEGORIES: 'catalog.category.list',
+  HEALTH_CHECK: 'catalog.health.check',
 } as const;
 
 export const CATALOG_EVENTS = {

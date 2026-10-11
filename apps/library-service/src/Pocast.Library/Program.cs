@@ -13,8 +13,12 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(settings.DatabaseConnectionString));
 builder.Services.AddSingleton<FollowStore>();
 builder.Services.AddSingleton<ProgressStore>();
+builder.Services.AddSingleton<DatabaseHealth>();
 builder.Services.AddSingleton(provider => new RpcRouter(
-    LibraryHandlers.Create(provider.GetRequiredService<FollowStore>(), provider.GetRequiredService<ProgressStore>()),
+    LibraryHandlers.Create(
+        provider.GetRequiredService<FollowStore>(),
+        provider.GetRequiredService<ProgressStore>(),
+        provider.GetRequiredService<DatabaseHealth>()),
     provider.GetRequiredService<ILogger<RpcRouter>>()));
 if (!isMigration)
 {

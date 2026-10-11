@@ -4,7 +4,10 @@ namespace Pocast.Library.Library;
 
 public static class LibraryHandlers
 {
-    public static IReadOnlyDictionary<string, RpcHandler> Create(FollowStore follows, ProgressStore progress) =>
+    public static IReadOnlyDictionary<string, RpcHandler> Create(
+        FollowStore follows,
+        ProgressStore progress,
+        DatabaseHealth health) =>
         new Dictionary<string, RpcHandler>(StringComparer.Ordinal)
         {
             [LibraryPatterns.Follow] = async (data, ct) =>
@@ -19,5 +22,6 @@ public static class LibraryHandlers
                 await progress.GetAsync(RpcJson.ReadCommand<GetProgressCommand>(data), ct),
             [LibraryPatterns.ListInProgress] = async (data, ct) =>
                 await progress.ListInProgressAsync(RpcJson.ReadCommand<PageCommand>(data), ct),
+            [LibraryPatterns.HealthCheck] = async (_, ct) => await health.CheckAsync(ct),
         };
 }
