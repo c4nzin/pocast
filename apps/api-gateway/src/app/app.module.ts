@@ -1,5 +1,10 @@
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
@@ -8,6 +13,7 @@ import { LibraryModule } from './library/library.module';
 import { StudioModule } from './studio/studio.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PodcastsModule } from './podcasts/podcasts.module';
+import { RequestContextMiddleware } from './observability/request-context.middleware';
 
 export const DEFAULT_RATE_LIMIT = { ttl: 60_000, limit: 300 } as const;
 
@@ -38,4 +44,14 @@ function requireRedisUrl(): string {
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestContextMiddleware)
+      .exclude(
+        { path: 'health', method: RequestMethod.GET },
+        { path: 'health/ready', method: RequestMethod.GET },
+      )
+      .forRoutes('*path');
+  }
+}

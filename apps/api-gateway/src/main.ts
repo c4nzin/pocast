@@ -18,10 +18,15 @@ function readTrustedProxyHops(): number {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   const globalPrefix = 'api';
+
   app.setGlobalPrefix(globalPrefix);
+
   app.set('trust proxy', readTrustedProxyHops());
+
   app.disable('x-powered-by');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -29,10 +34,13 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? DEFAULT_PORT);
+
   await app.listen(port);
+
   Logger.log(`api-gateway running on http://localhost:${port}/${globalPrefix}`);
 }
 
